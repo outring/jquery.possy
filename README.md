@@ -1,7 +1,7 @@
 Possy
 =====
 
-jQuery plugin for separate background-position (x/y) animations/manipulations. All jQuery.css and jQuery.animate features are supported
+jQuery plugin for separate background-position (background-position-x/background-position-y) animations/manipulations. All jQuery.css and jQuery.animate features are supported
 
 Usage
 =====
