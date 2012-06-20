@@ -1,25 +1,35 @@
 (function ($) {
 
-    function parseValue(position) {
-        position = position
-            .replace(/left|top/ig, '0px')
-            .replace(/right|bottom/ig, '100%')
-            .replace(/([0-9\.]+)(\s|$)/ig, "$1px$2");
-        var result = [];
-        var valueRegexp = /(-?[0-9\.]+)(px|%|em|pt)/ig;
-        var match;
-        while (match = valueRegexp.exec(position)) {
-            result.push(parseFloat(match[1]));
-            result.push(match[2]);
-        }
+    var support = (function () {
+        var style = document.createElement('div').style;
+        style.backgroundPosition = 'right top';
+
+        var result = {};
+
+        /** Check backgroundPositionX/backgroundPositionY support */
+        result.directions = 'backgroundPositionX' in style && 'backgroundPositionY' in style;
+
+        /** Check if top/right/bottom/left values translated to numeric values by browser */
+        result.translation = result.directions && style.backgroundPositionX.toLocaleLowerCase() !== 'right';
+
         return result;
+    })();
+
+    if (support.directions && support.translation)
+        return;
+
+    function parseValue(position) {
+        return position
+            .replace(/left|top/i, '0px')
+            .replace(/right|bottom/i, '100%')
+            .replace(/([0-9\.]+)(\s|$)/, "$1px$2");
     }
 
     function parsePosition(position) {
-        var res = parseValue(position);
+        var parts = position.split(' ');
         return {
-            x: [res[0], res[1]],
-            y: [res[2], res[3]]
+            x: parseValue(parts[0]),
+            y: parseValue(parts[1])
         };
     }
 
@@ -31,12 +41,12 @@
             set: function (element, value) {
                 var parts = parsePosition($.curCSS(element, baseProperty));
                 parts[direction.toLowerCase()] = parseValue(value);
-                element.style.backgroundPosition = parts.x.join('') + ' ' + parts.y.join('');
+                element.style.backgroundPosition = parts.x + ' ' + parts.y;
             },
             get: function (element) {
-                return parsePosition($.curCSS(element, baseProperty))[direction.toLowerCase()].join('');
+                return parsePosition($.curCSS(element, baseProperty))[direction.toLowerCase()];
             }
-        }
+        };
         $.fx.step[currentProperty] = function (fx) {
             $.style(fx.elem, baseProperty + direction, fx.now + fx.unit);
         };
