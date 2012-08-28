@@ -9,8 +9,9 @@
 		/** Check backgroundPositionX/backgroundPositionY support */
 		result.directions = 'backgroundPositionX' in style && 'backgroundPositionY' in style;
 
-		/** Check if top/right/bottom/left values translated to numeric values by browser */
-		result.translation = result.directions && style.backgroundPositionX.toLocaleLowerCase() !== 'right';
+		/** Check if browser can translate top/right/bottom/left into numeric values */
+		var backgroundProperty = result.directions ? style.backgroundPositionX : style.backgroundPosition;
+		result.translation = backgroundProperty.toLowerCase().indexOf('right') === -1;
 
 		return result;
 	})();
@@ -18,7 +19,7 @@
 	if (support.directions && support.translation)
 		return;
 
-	function parseValue(position) {
+	function translate(position) {
 		return position.replace(/left|top/i, '0px').replace(/right|bottom/i, '100%');
 	}
 
@@ -38,14 +39,14 @@
 					if (isInternalCall)
 						return undefined;
 					var value = $.css(element, currentProperty, /** isInternalCall */ true);
-					return computed ? parseValue(value) : value;
+					return support.translation ? value : translate(value);
 				}
 			};
 		else
 			hook = {
-				get: function (element, computed) {
+				get: function (element) {
 					var value = getPositions(element)[direction];
-					return computed ? parseValue(value) : value;
+					return support.translation ? value : translate(value);
 				},
 				set: function (element, value) {
 					var positions = getPositions(element);
