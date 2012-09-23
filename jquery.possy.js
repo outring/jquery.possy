@@ -39,7 +39,7 @@
 					if (isInternalCall)
 						return undefined;
 					var value = $.css(element, currentProperty, /** isInternalCall */ true);
-					return support.translation ? value : translate(value);
+					return translate(value);
 				}
 			};
 		else
